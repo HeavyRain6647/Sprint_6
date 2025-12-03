@@ -1,9 +1,11 @@
 import allure
 from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
+from urls import Urls # Импортируем Urls
 
 class MainPage(BasePage):
-    URL = 'https://qa-scooter.praktikum-services.ru/'
+    # Используем URL из urls.py
+    URL = Urls.SAMOKAT_HOME_PAGE
 
     # Локаторы
     LOGO_SCOOTER = (By.CLASS_NAME, 'Header_LogoScooter__3lsAR')
@@ -12,7 +14,7 @@ class MainPage(BasePage):
     ORDER_BUTTON_TOP = (By.CLASS_NAME, 'Button_Button__ra12g')
     ORDER_BUTTON_BOTTOM = (By.XPATH, ".//button[contains(@class, 'Button_Middle__1CSd9')]")
     
-    COOKIES_BUTTON = (By.ID, 'rcc-confirm-button') # Кнопка куки, может мешать
+    COOKIES_BUTTON = (By.ID, 'rcc-confirm-button') # Кнопка куки
 
     # Метод формирования локатора вопроса по индексу (форматирование строки)
     def get_question_locator(self, num):
@@ -28,7 +30,8 @@ class MainPage(BasePage):
 
     @allure.step("Принять куки")
     def click_cookie_accept(self):
-        if self.driver.find_elements(*self.COOKIES_BUTTON):
+        # ИСПРАВЛЕНО: Вызываем метод из BasePage
+        if self.check_element_presence(self.COOKIES_BUTTON): 
             self.click_element(self.COOKIES_BUTTON)
 
     @allure.step("Кликнуть по вопросу в FAQ")
@@ -39,8 +42,7 @@ class MainPage(BasePage):
     @allure.step("Получить текст ответа")
     def get_faq_answer_text(self, num):
         locator = self.get_answer_locator(num)
-        # Ждем видимости, так как есть анимация
-        return self.find_element(locator).text
+        return self.get_text(locator) # Используем get_text из BasePage
 
     @allure.step("Кликнуть кнопку 'Заказать' (верхнюю или нижнюю)")
     def click_order_button(self, is_top=True):
